@@ -1,0 +1,144 @@
+Complete Setup Instructions for Configuring GitHub, Docker, Kubernetes, Ansible, and Terraform on a Single Node Ubuntu System 
+
+ 
+Prerequisites 
+A machine running Ubuntu 22.04/20.04 LTS   
+Minimum System Requirements: 
+- CPU: 4 cores   
+- RAM: 8GB+ (16GB recommended for Kubernetes)   
+- Storage: 50GB+ free space   
+- Network: Internet access   
+ 
+User Permissions: 
+sudo usermod -aG sudo $USER && newgrp sudo  
+Update the system: 
+sudo apt update 
+
+sudo apt upgrade -y 
+   
+# Step 1: Install and Configure GitHub CLI 
+sudo apt install git -y 
+#1.2 Configure Git 
+git config --global user.name "Your Name" 
+git config --global user.email "your-email@example.com" 
+ 
+ 
+
+ 
+
+#1.3 Install GitHub CLI 
+type -p curl >/dev/null || sudo apt install curl –y 
+
+ 
+curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo tee /usr/share/keyrings/githubcli-archive-keyring.gpg >/dev/null 
+ 
+
+echo "deb [signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null 
+
+https://github.com/karthiganesh/tjohndevops2503 
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+sudo apt update 
+sudo apt install gh -y 
+ 
+#1.4 Authenticate with GitHub 
+gh auth login 
+ 
+# Step 2: Install Docker 
+#2.1 Remove Older Versions 
+sudo apt remove docker docker-engine docker.io containerd runc -y 
+ 
+#2.2 Install Required Packages 
+sudo apt install -y ca-certificates curl gnupg 
+ 
+#2.3 Add Docker Repository 
+sudo install -m 0755 -d /etc/apt/keyrings 
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo tee /etc/apt/keyrings/docker.asc > /dev/null 
+sudo chmod a+r /etc/apt/keyrings/docker.asc 
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null 
+ 
+#2.4 Install Docker 
+sudo apt update 
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin 
+ 
+#2.5 Enable and Start Docker 
+sudo systemctl enable docker 
+sudo systemctl start docker 
+ 
+#2.6 Verify Installation 
+docker --version 
+sudo docker run hello-world 
+ 
+#2.7 Add User to Docker Group 
+sudo usermod -aG docker $USER 
+newgrp docker 
+ 
+# Step 3: Install Kubernetes (K3s - Lightweight Kubernetes) 
+#3.1 Install K3s 
+curl -sfL https://get.k3s.io | sh - 
+ 
+#3.2 Verify K3s Installation 
+sudo k3s kubectl get nodes 
+ 
+#3.3 Alias for kubectl 
+echo 'alias kubectl="sudo k3s kubectl"' >> ~/.bashrc 
+source ~/.bashrc 
+ 
+#3.4 Enable K3s Service 
+sudo systemctl enable k3s 
+ 
+# Step 4: Install Ansible 
+#4.1 Install Ansible 
+sudo apt install -y ansible 
+ 
+#4.2 Verify Ansible Installation 
+ansible --version 
+ 
+#4.3 Test Ansible Local Execution 
+echo -e "[local] 
+localhost ansible_connection=local" | sudo tee /etc/ansible/hosts 
+ansible all -m ping 
+ 
+# Step 5: Install Terraform 
+#5.1 Download Terraform 
+sudo apt install -y wget unzip 
+wget https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip 
+ 
+#5.2 Extract and Install 
+unzip terraform_1.6.0_linux_amd64.zip 
+sudo mv terraform /usr/local/bin/ 
+rm terraform_1.6.0_linux_amd64.zip 
+ 
+#5.3 Verify Terraform Installation 
+terraform --version 
+ 
+# Step 6: Validate the Setup 
+Run the following commands to check if everything is working: 
+ 
+git --version 
+docker --version 
+kubectl version --client 
+ansible --version 
+terraform --version 
+ 
+To check the Kubernetes cluster: 
+kubectl get nodes 
+ 
+To verify Docker can run containers: 
+docker run hello-world 
+ 
+To test Ansible: 
+ansible all -m ping 
+ 
